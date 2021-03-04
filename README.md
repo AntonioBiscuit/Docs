@@ -44,6 +44,7 @@
     - [Opérations possibles dans (config-if)](#opérations-possibles-dans-config-if)
   - [Configurer des VLANs](#configurer-des-vlans)
   - [Importer une config](#importer-une-config)
+  - [Port mirroring / span session](#port-mirroring--span-session)
 
 
 # Connaissances et concepts de base
@@ -368,11 +369,9 @@ Prérequis:
 
 ## Sécuriser l'accès console (port série)
 
-`username [admin] password [console]`
-
-`line console 0`
-
-`login local`
+    username [admin] password [console]
+    line console 0
+    login local
 
 
 ## Mot de passe
@@ -415,7 +414,9 @@ Hash
 
 ## Configurer des VLANs
 
-Selectionner le ou les ports
+- Selectionner le ou les ports
+
+Si VLAN n'existait pas encore, il sera créé automatiquement.
 
 Exemple pour configurer le VLAN 2 sur la plage de ports 5-8:
 
@@ -427,7 +428,7 @@ Exemple pour configurer le VLAN 2 sur la plage de ports 5-8:
 
     Galaxy(config-if-range)#exit
 
-Vérifier avec `show vlan`
+Enfin, vérifier avec `show vlan` que les modifs souhaitées ont été appliquées.
 
 ## Importer une config
 Après être passé en mode config:
@@ -435,7 +436,22 @@ Après être passé en mode config:
     Switch> enable
     Switch# configure terminal
 
-Simplement coller l'intégralité du fichier texte sauvegardé au préalable et admirer les lignes défiller.
+Simplement coller l'intégralité du fichier texte sauvegardé au préalable et admirer les lignes défiller 👀
 
 ⚠️ Selon le terminal on ne colle pas de la même manière !  
 `CTRL + SHIFT + V` sur un terminal Linux et `R MOUSE` sur PuTTY ou un command prompt Windows.
+
+
+## Port mirroring / span session
+
+Une machine est connectée sur le port 8 le port trunk soie est sur le port 24. On souhaite copier l'intégralité du traffic du port 24 sur le port 8.
+
+Si on est connecté sur un port mirroir, la machine ne peut plus rien faire: il devient innopérant.
+
+Avec X, numéro de session: 1 <= X <= 66  
+`[SOURCE]`, numéro de port source  
+`[DESTINATION]`, numéro de port destination  
+`[OPTION]` = Tx, Rx ou Both  
+
+    monitor session X source int fa0/[SOURCE] [OPTION]
+    monitor session X destination int fa0/[DESTINATION]
