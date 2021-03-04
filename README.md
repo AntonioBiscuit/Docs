@@ -43,6 +43,7 @@
       - [Plusieurs plages de ports](#plusieurs-plages-de-ports)
     - [Opérations possibles dans (config-if)](#opérations-possibles-dans-config-if)
   - [Configurer des VLANs](#configurer-des-vlans)
+  - [Importer une config](#importer-une-config)
 
 
 # Connaissances et concepts de base
@@ -428,3 +429,13 @@ Exemple pour configurer le VLAN 2 sur la plage de ports 5-8:
 
 Vérifier avec `show vlan`
 
+## Importer une config
+Après être passé en mode config:
+
+    Switch> enable
+    Switch# configure terminal
+
+Simplement coller l'intégralité du fichier texte sauvegardé au préalable et admirer les lignes défiller.
+
+⚠️ Selon le terminal on ne colle pas de la même manière !  
+`CTRL + SHIFT + V` sur un terminal Linux et `R MOUSE` sur PuTTY ou un command prompt Windows.
