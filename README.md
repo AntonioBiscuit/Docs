@@ -27,6 +27,8 @@
     - [Sauvegarder la configuration dans la NVRAM](#sauvegarder-la-configuration-dans-la-nvram)
     - [Afficher les VLANS](#afficher-les-vlans)
     - [Afficher les infos de toutes les interfaces](#afficher-les-infos-de-toutes-les-interfaces)
+    - [Configurer le suffixe DNS](#configurer-le-suffixe-dns)
+    - [Désactiver la recherche DNS](#désactiver-la-recherche-dns)
     - [Configurer un port](#configurer-un-port)
   - [**⚠️ Commandes dangereuses**](#️-commandes-dangereuses)
 - [Procéures et tutoriels](#procéures-et-tutoriels)
@@ -43,8 +45,22 @@
       - [Plusieurs plages de ports](#plusieurs-plages-de-ports)
     - [Opérations possibles dans (config-if)](#opérations-possibles-dans-config-if)
   - [Configurer des VLANs](#configurer-des-vlans)
+  - [Changer le nom d'un VLAN](#changer-le-nom-dun-vlan)
+  - [Passer un port en access ou en trunk](#passer-un-port-en-access-ou-en-trunk)
   - [Importer une config](#importer-une-config)
   - [Port mirroring / span session](#port-mirroring--span-session)
+  - [Aggrégation de liens](#aggrégation-de-liens)
+  - [DHCP](#dhcp)
+    - [Configurer ce qu'il faut](#configurer-ce-quil-faut)
+    - [Désactiver la recherche DNS sur un routeur](#désactiver-la-recherche-dns-sur-un-routeur)
+    - [Configurer un MOTD](#configurer-un-motd)
+    - [Configurer logging synchronous](#configurer-logging-synchronous)
+    - [Configurer des clock rates](#configurer-des-clock-rates)
+  - [Route par défaut](#route-par-défaut)
+  - [Configurer le routage RIPv2](#configurer-le-routage-ripv2)
+    - [Désactiver l récapitulation des réseaux](#désactiver-l-récapitulation-des-réseaux)
+    - [Interface passive](#interface-passive)
+    - [Propagation d'une route par défaut*](#propagation-dune-route-par-défaut)
 
 
 # Connaissances et concepts de base
@@ -330,6 +346,12 @@ Un grande grand nombre de commandes possèdent leur équivalent inverse comme n�
 ### Afficher les infos de toutes les interfaces
 `show interfaces`
 
+### Configurer le suffixe DNS  
+`ip domain-name DOMAINNAME`
+
+### Désactiver la recherche DNS  
+`no ip domain-local`
+
 ### Configurer un port
 
 
@@ -430,6 +452,21 @@ Exemple pour configurer le VLAN 2 sur la plage de ports 5-8:
 
 Enfin, vérifier avec `show vlan` que les modifs souhaitées ont été appliquées.
 
+## Changer le nom d'un VLAN
+
+    (config)# vlan X
+    (config-vlan)# name NAME
+
+## Passer un port en access ou en trunk
+Sélectionner le(s) port(s), puis:
+
+    (config-if)# switchport mode trunk
+
+Ou dans le cas d'un port access:
+
+    (config-if)# switchport mode access
+
+
 ## Importer une config
 Après être passé en mode config:
 
@@ -444,7 +481,7 @@ Simplement coller l'intégralité du fichier texte sauvegardé au préalable et 
 
 ## Port mirroring / span session
 
-Une machine est connectée sur le port 8 le port trunk soie est sur le port 24. On souhaite copier l'intégralité du traffic du port 24 sur le port 8.
+Une machine est connectée sur le port 8 et le port trunk est sur le port 24. On souhaite copier l'intégralité du traffic du port 24 sur le port 8.
 
 Si on est connecté sur un port mirroir, la machine ne peut plus rien faire: il devient innopérant.
 
@@ -455,3 +492,92 @@ Avec X, numéro de session: 1 <= X <= 66
 
     monitor session X source int fa0/[SOURCE] [OPTION]
     monitor session X destination int fa0/[DESTINATION]
+
+
+## Aggrégation de liens
+
+## DHCP
+
+### Configurer ce qu'il faut
+
+- Réseau
+- Étendue d'IP
+- Passerelle
+- DNS
+
+Commandes:
+
+    Router(config)#ip dhcp pool NAME
+
+    Router(dhcp-config)#?
+    default-router  Default routers
+    dns-server      Set name server
+    domain-name     Domain name
+    exit            Exit from DHCP pool configuration mode
+    network         Network number and mask
+    no              Negate a command or set its defaults
+    option          Raw DHCP options
+
+
+
+### Désactiver la recherche DNS sur un routeur
+
+`no ip domain-lookup`
+
+
+### Configurer un MOTD
+
+    line console 0
+    banner motd ´[MESSAGE]´
+
+### Configurer logging synchronous
+
+Permet d´empêcher des messages et logs d´apparaître et de nous couper pendant qu´on tape une commande:
+
+    line console 0
+    logging synchronous
+
+### Configurer des clock rates
+
+    Je sais pas PTDRRRR
+
+
+## Route par défaut
+
+ip route 0.0.0.0 0.0.0.0 interface IP
+
+
+
+## Configurer le routage RIPv2
+
+    R1# config t
+    R1(config)# router rip
+    R1(config-router)# version 2
+    R1(config-router)# passive-interface g0/1
+    R1(config-router)# network 172.30.0.0
+    R1(config-router)# network 10.0.0.0
+
+
+### Désactiver l récapitulation des réseaux
+
+    no auto-summary
+
+Fonctionne uniquement sur RIPv2
+
+    show ip protocols
+
+Indique si la fonction de récapitulation de réseaux est déjà activée ou non
+
+### Interface passive
+
+    R1(config-router)# passive-interface g0/1
+
+La commande passive-interface arrête l’envoi de mises à jour de routage via l’interface spécifiée. Cela
+permet d’éviter le trafic de routage inutile sur le réseau local. Toutefois, le réseau auquel appartient l’interface
+spécifiée continuera d’être annoncé dans les mises à jour de routage envoyées via d’autres interfaces.
+
+### Propagation d'une route par défaut*
+
+    ip router 0.0.0.0 0.0.0.0 Gig 0/1
+    router rip
+    default-information originate
